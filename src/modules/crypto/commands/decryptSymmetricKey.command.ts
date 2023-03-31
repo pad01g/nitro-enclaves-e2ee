@@ -3,17 +3,17 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
-import { AsymmetricKeyPairDto } from '../dtos';
+import { DecryptResultDto } from '../dtos';
 
-export class GenerateKeyPairCommand implements ICommand {}
+export class DecryptSymmetricKeyCommand implements ICommand {}
 
-@CommandHandler(GenerateKeyPairCommand)
-export class GenerateKeyPairHandler
-  implements ICommandHandler<GenerateKeyPairCommand>
+@CommandHandler(DecryptSymmetricKeyCommand)
+export class DecryptSymmetricKeyHandler
+  implements ICommandHandler<DecryptSymmetricKeyCommand>
 {
   async execute(
-    _command: GenerateKeyPairCommand,
-  ): Promise<AsymmetricKeyPairDto> {
+    _command: DecryptSymmetricKeyCommand,
+  ): Promise<DecryptResultDto> {
     // run "/app/kmstool_enclave_cli" shell from
     // `aws-nitro-enclaves-workshop/resources/code/my-first-enclave/cryptographic-attestation/server.py`
     const region = '';
@@ -40,6 +40,6 @@ export class GenerateKeyPairHandler
     // decode base64
     const data: string = stdout;
 
-    return new AsymmetricKeyPairDto(data, '');
+    return new DecryptResultDto(data);
   }
 }

@@ -3,17 +3,21 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
-import { AsymmetricKeyPairDto } from '../dtos';
+import { SymmetricKeyDto } from '../dtos';
 
-export class GenerateKeyPairCommand implements ICommand {}
+export class EncryptSymmetricKeyCommand implements ICommand {
+  public message: string;
 
-@CommandHandler(GenerateKeyPairCommand)
-export class GenerateKeyPairHandler
-  implements ICommandHandler<GenerateKeyPairCommand>
+  constructor(message: string) {
+    this.message = message;
+  }
+}
+
+@CommandHandler(EncryptSymmetricKeyCommand)
+export class EncryptSymmetricKeyHandler
+  implements ICommandHandler<EncryptSymmetricKeyCommand>
 {
-  async execute(
-    _command: GenerateKeyPairCommand,
-  ): Promise<AsymmetricKeyPairDto> {
+  async execute(command: EncryptSymmetricKeyCommand): Promise<SymmetricKeyDto> {
     // run "/app/kmstool_enclave_cli" shell from
     // `aws-nitro-enclaves-workshop/resources/code/my-first-enclave/cryptographic-attestation/server.py`
     const region = '';
@@ -21,7 +25,6 @@ export class GenerateKeyPairHandler
     const access = '';
     const secret = '';
     const token = '';
-    const ciphertext = '';
     // decryption
     const { stdout } = await promisify(execFile)('/app/kmstool_enclave_cli', [
       '--region',
@@ -35,11 +38,11 @@ export class GenerateKeyPairHandler
       '--aws-session-token',
       token,
       '--ciphertext',
-      ciphertext,
+      command.message,
     ]);
     // decode base64
     const data: string = stdout;
 
-    return new AsymmetricKeyPairDto(data, '');
+    return new SymmetricKeyDto(data);
   }
 }
