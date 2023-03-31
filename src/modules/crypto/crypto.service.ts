@@ -7,10 +7,12 @@ import { DecryptSymmetricKeyCommand } from './commands/decryptSymmetricKey.comma
 import { EncryptSymmetricKeyCommand } from './commands/encryptSymmetricKey.command';
 import { GenerateKeyCommand } from './commands/generateKey.command';
 import { GenerateKeyPairCommand } from './commands/generateKeyPair.command';
+import type { SignMessageCommand } from './commands/signMessage.command';
 import type {
   AsymmetricKeyPairDto,
   DecryptResultDto,
   RegisterUserDto,
+  SignResultDto,
   SignWithAuthDto,
   SymmetricKeyDto,
 } from './dtos';
@@ -21,6 +23,7 @@ import {
 } from './dtos';
 import { CryptoNotFoundException } from './exceptions/crypto-not-found.exception';
 import { RegisterFailException } from './exceptions/registerFail.exception';
+import { SignWithAuthFailException } from './exceptions/signWithAuthFail.exception';
 
 @Injectable()
 export class CryptoService {
@@ -101,11 +104,13 @@ export class CryptoService {
 
       const jsonUserMessage: string = JSON.stringify(userMessage);
 
-      // encrypt message
+      // encrypt message for db
       const encryptedDBMessage = await this.commandBus.execute<
         EncryptSymmetricKeyCommand,
         DecryptResultDto
       >(new EncryptSymmetricKeyCommand(jsonUserMessage));
+
+      // encrypt message for user with uuid and returns result
 
       return new RegisterUserResultDto(encryptedDBMessage.result);
     }
@@ -146,7 +151,25 @@ export class CryptoService {
       userMessage.user === dbMessage.user &&
       userMessage.passwordHash === dbMessage.passwordHash;
 
-    // judge if you can actually sign
-    return new SignWithAuthResultDto(isAuthorized);
+    // sign message and return result
+    if (isAuthorized) {
+      const signedMessage = await this.commandBus.execute<
+        SignMessageCommand,
+        SignResultDto
+      >(
+        JSON.stringify({
+          uuid: '',
+          result: '',
+        }),
+      );
+
+      // encrypt message for user with uuid and returns result
+      const encryptedMessage = signedMessage.result;
+
+      return new SignWithAuthResultDto(isAuthorized, encryptedMessage);
+    }
+
+    // exception
+    throw new SignWithAuthFailException();
   }
 }
