@@ -35,5 +35,8 @@ describe('CryptoController (e2e)', () => {
       .send({})
       .expect(201));
 
+  it('/cryptos/getPublicKey (GET)', () =>
+    request(app.getHttpServer()).get('/cryptos/getPublicKey').expect(200));
+
   afterAll(() => app.close());
 });
