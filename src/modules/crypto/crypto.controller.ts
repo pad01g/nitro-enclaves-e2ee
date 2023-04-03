@@ -12,7 +12,6 @@ import { CryptoService } from './crypto.service';
 import {
   GenerateKeyPairDto,
   GenerateSymmetricKeyDto,
-  // GetPublicKeyDto,
   PublicKeyDto,
   RegisterUserDto,
   RegisterUserResultDto,
