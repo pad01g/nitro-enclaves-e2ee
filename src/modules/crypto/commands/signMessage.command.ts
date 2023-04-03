@@ -5,7 +5,13 @@ import { promisify } from 'util';
 
 import { SignResultDto } from '../dtos';
 
-export class SignMessageCommand implements ICommand {}
+export class SignMessageCommand implements ICommand {
+  public message: string;
+
+  constructor(message: string) {
+    this.message = message;
+  }
+}
 
 @CommandHandler(SignMessageCommand)
 export class SignMessageHandler implements ICommandHandler<SignMessageCommand> {

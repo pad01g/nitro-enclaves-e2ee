@@ -5,7 +5,13 @@ import { promisify } from 'util';
 
 import { DecryptResultDto } from '../dtos';
 
-export class DecryptSymmetricKeyCommand implements ICommand {}
+export class DecryptSymmetricKeyCommand implements ICommand {
+  public ciphertext: string;
+
+  constructor(ciphertext: string) {
+    this.ciphertext = ciphertext;
+  }
+}
 
 @CommandHandler(DecryptSymmetricKeyCommand)
 export class DecryptSymmetricKeyHandler
