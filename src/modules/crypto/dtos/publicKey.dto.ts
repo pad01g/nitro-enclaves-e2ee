@@ -1,5 +1,5 @@
 export class PublicKeyDto {
-  private publicKey: string;
+  public publicKey: string;
 
   constructor(publicKey: string) {
     this.publicKey = publicKey;
